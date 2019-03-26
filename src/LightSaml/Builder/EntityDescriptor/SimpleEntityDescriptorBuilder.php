@@ -149,28 +149,6 @@ class SimpleEntityDescriptorBuilder implements EntityDescriptorProviderInterface
     }
 
     /**
-     * @return SpSsoDescriptor|null
-     */
-    protected function getSpSsoDescriptor()
-    {
-        if (null === $this->acsUrl) {
-            return null;
-        }
-
-        $spSso = new SpSsoDescriptor();
-
-        foreach ($this->acsBindings as $index => $biding) {
-            $acs = new AssertionConsumerService();
-            $acs->setIndex($index)->setLocation($this->acsUrl)->setBinding($biding);
-            $spSso->addAssertionConsumerService($acs);
-        }
-
-        $this->addKeyDescriptors($spSso);
-
-        return $spSso;
-    }
-
-    /**
      * @return IdpSsoDescriptor
      */
     protected function getIdpSsoDescriptor()
