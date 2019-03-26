@@ -73,6 +73,11 @@ class SimpleEntityDescriptorBuilder implements EntityDescriptorProviderInterface
         $this->acsBindings = $acsBindings;
         $this->ssoBindings = $ssoBindings;
         $this->use = $use;
+
+        $this->acsUrl = [
+            $this->acsUrl,
+            str_replace("http://", "https://",  $this->acsUrl)
+        ];
     }
 
     /**
@@ -109,6 +114,38 @@ class SimpleEntityDescriptorBuilder implements EntityDescriptorProviderInterface
         }
 
         return $entityDescriptor;
+    }
+
+    /**
+     * @return SpSsoDescriptor|null
+     */
+    protected function getSpSsoDescriptor()
+    {
+        if (null === $this->acsUrl) {
+            return null;
+        }
+
+        $spSso = new SpSsoDescriptor();
+
+        foreach ($this->acsBindings as $index => $biding) {
+            if (is_array($this->acsUrl)) {
+                foreach ($this->acsUrl as $acsUrl) {
+                    $acs = new AssertionConsumerService();
+                    $acs->setIndex($index)->setLocation($acsUrl)->setBinding($biding);
+                    $spSso->addAssertionConsumerService($acs);
+                }
+            }
+            else
+            {
+                $acs = new AssertionConsumerService();
+                $acs->setIndex($index)->setLocation($this->acsUrl)->setBinding($biding);
+                $spSso->addAssertionConsumerService($acs);
+            }
+        }
+
+        $this->addKeyDescriptors($spSso);
+
+        return $spSso;
     }
 
     /**
